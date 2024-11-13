@@ -141,6 +141,7 @@ class SecondPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Color.fromARGB(255, 20, 10, 64),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
