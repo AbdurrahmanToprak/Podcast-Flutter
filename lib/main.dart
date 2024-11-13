@@ -149,7 +149,10 @@ class SecondPage extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.menu, color: Colors.white),
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomePage()),
+                );
               },
             ),
             Text(
@@ -175,7 +178,6 @@ class SecondPage extends StatelessWidget {
         itemBuilder: (context, index) {
           return GestureDetector(
             onTap: () {
-              // Navigate to detailed podcast page
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -228,13 +230,30 @@ class SecondPage extends StatelessWidget {
               icon: Icon(Icons.analytics_outlined), label: 'Kütüphane'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
         ],
-        onTap: (index) {},
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SecondPage()),
+            );
+          } else if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CategoryPage()),
+            );
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ProfilePage()),
+            );
+          }
+        },
       ),
     );
   }
 }
 
-class PodcastDetailPage extends StatelessWidget {
+class PodcastDetailPage extends StatefulWidget {
   final String title;
   final String owner;
   final String image;
@@ -244,6 +263,38 @@ class PodcastDetailPage extends StatelessWidget {
     required this.owner,
     required this.image,
   });
+
+  @override
+  _PodcastDetailPageState createState() => _PodcastDetailPageState();
+}
+
+class _PodcastDetailPageState extends State<PodcastDetailPage> {
+  bool isPlaying = false;
+  int currentIndex = 0;
+
+  // Sample list of podcasts to simulate next/previous functionality
+  final List<Map<String, String>> podcasts = [
+    {
+      'image': 'assets/images/1.jpg',
+      'title': 'Podcast 1',
+      'owner': 'Kişi 1',
+    },
+    {
+      'image': 'assets/images/2.jpg',
+      'title': 'Podcast 2',
+      'owner': 'Kişi 2',
+    },
+    {
+      'image': 'assets/images/3.jpg',
+      'title': 'Podcast 3',
+      'owner': 'Kişi 3',
+    },
+    {
+      'image': 'assets/images/4.jpg',
+      'title': 'Podcast 4',
+      'owner': 'Kişi 4',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -257,46 +308,146 @@ class PodcastDetailPage extends StatelessWidget {
           },
         ),
         title: Text(
-          title,
+          widget.title,
           style: TextStyle(color: Colors.white, fontSize: 24),
         ),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.asset(
-                image,
-                width: double.infinity,
-                height: 250,
-                fit: BoxFit.cover,
+      body: Stack(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    widget.image,
+                    width: double.infinity,
+                    height: 250,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  widget.title,
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  '${widget.owner}',
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                ),
+                SizedBox(height: 20),
+                LinearProgressIndicator(
+                  value: 0.5,
+                  color: Colors.blue,
+                  backgroundColor: Colors.grey.shade300,
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Podcast Oynatılıyor...',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              color: Color.fromARGB(255, 20, 10, 64),
+              padding: EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.skip_previous,
+                        color: Colors.white, size: 30),
+                    onPressed: () {
+                      setState(() {
+                        currentIndex = (currentIndex - 1 + podcasts.length) %
+                            podcasts.length;
+                      });
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      isPlaying ? Icons.pause : Icons.play_arrow,
+                      color: Colors.white,
+                      size: 40,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        isPlaying = !isPlaying;
+                      });
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.skip_next, color: Colors.white, size: 30),
+                    onPressed: () {
+                      setState(() {
+                        currentIndex = (currentIndex + 1) % podcasts.length;
+                      });
+                    },
+                  ),
+                ],
               ),
             ),
-            SizedBox(height: 16),
-            Text(
-              title,
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CategoryPage extends StatelessWidget {
+  final List<String> categories = [
+    "Technology",
+    "Entertainment",
+    "Health",
+    "Education",
+    "Music",
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color.fromARGB(255, 20, 10, 64),
+        title: Text('Kütüphane', style: TextStyle(color: Colors.white)),
+      ),
+      body: ListView.builder(
+        itemCount: categories.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(
+              categories[index],
+              style: TextStyle(fontSize: 18),
             ),
-            SizedBox(height: 8),
-            Text(
-              '$owner',
-              style: TextStyle(fontSize: 18, color: Colors.grey),
-            ),
-            SizedBox(height: 20),
-            LinearProgressIndicator(
-              value: 0.5,
-              color: Colors.blue,
-              backgroundColor: Colors.grey.shade300,
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Podcast Oynatılıyor...',
-              style: TextStyle(fontSize: 16),
-            ),
-          ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class ProfilePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color.fromARGB(255, 20, 10, 64),
+        title: Text(
+          'Profil',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+      body: Center(
+        child: Text(
+          'Kullanıcı Profili',
+          style: TextStyle(fontSize: 24, color: Colors.white),
         ),
       ),
     );
